@@ -1,1 +1,340 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flaggen-Quiz Spiel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .flag-display {
+            text-align: center;
+            font-size: 120px;
+            margin: 40px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .flag-display:hover {
+            transform: scale(1.1);
+        }
+
+        .question {
+            text-align: center;
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            font-size: 1em;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .option-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .option-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .option-btn.correct {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        .option-btn.wrong {
+            background: #f44336;
+            border-color: #f44336;
+            color: white;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .feedback.correct {
+            color: #4caf50;
+        }
+
+        .feedback.wrong {
+            color: #f44336;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .next-btn:hover {
+            background: #764ba2;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .next-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .restart-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .restart-btn:hover {
+            background: #45a049;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .game-over {
+            text-align: center;
+            font-size: 1.5em;
+            color: #333;
+            margin: 30px 0;
+        }
+
+        .final-score {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #667eea;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 Flaggen-Quiz</h1>
+        <div class="score">Punkte: <span id="score">0</span> / <span id="total">10</span></div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div id="gameContainer">
+            <div class="flag-display" id="flagDisplay"></div>
+            <div class="question">Welches Land ist das?</div>
+            <div class="feedback" id="feedback"></div>
+            <div class="options" id="options"></div>
+            <div class="button-group">
+                <button class="next-btn" id="nextBtn" disabled>Weiter →</button>
+            </div>
+        </div>
+
+        <div id="gameOverContainer" style="display: none;">
+            <div class="game-over">🎉 Spiel vorbei!</div>
+            <div class="final-score" id="finalScore"></div>
+            <button class="restart-btn" id="restartBtn">Nochmal spielen</button>
+        </div>
+    </div>
+
+    <script>
+        const flags = [
+            { flag: '🇩🇪', country: 'Deutschland' },
+            { flag: '🇦🇹', country: 'Österreich' },
+            { flag: '🇨🇭', country: 'Schweiz' },
+            { flag: '🇫🇷', country: 'Frankreich' },
+            { flag: '🇮🇹', country: 'Italien' },
+            { flag: '🇪🇸', country: 'Spanien' },
+            { flag: '🇳🇱', country: 'Niederlande' },
+            { flag: '🇧🇪', country: 'Belgien' },
+            { flag: '🇸🇪', country: 'Schweden' },
+            { flag: '🇬🇧', country: 'Großbritannien' }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let shuffledQuestions = [];
+
+        function initGame() {
+            shuffledQuestions = flags.sort(() => Math.random() - 0.5);
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('gameOverContainer').style.display = 'none';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= shuffledQuestions.length) {
+                endGame();
+                return;
+            }
+
+            answered = false;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('nextBtn').disabled = true;
+            updateProgress();
+
+            const current = shuffledQuestions[currentQuestion];
+            document.getElementById('flagDisplay').textContent = current.flag;
+
+            // Generiere Optionen
+            let options = [current.country];
+            let randomFlags = [...shuffledQuestions].sort(() => Math.random() - 0.5).slice(0, 3);
+            randomFlags.forEach(f => {
+                if (f.country !== current.country) {
+                    options.push(f.country);
+                }
+            });
+
+            options = options.sort(() => Math.random() - 0.5).slice(0, 4);
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'option-btn';
+                button.onclick = () => checkAnswer(option, current.country, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected, correct, button) {
+            if (answered) return;
+
+            answered = true;
+            const feedback = document.getElementById('feedback');
+            const buttons = document.querySelectorAll('.option-btn');
+
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correct) {
+                    btn.classList.add('correct');
+                }
+                if (selected !== correct && btn === button) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            if (selected === correct) {
+                feedback.textContent = '✅ Richtig!';
+                feedback.className = 'feedback correct';
+                score++;
+                document.getElementById('score').textContent = score;
+            } else {
+                feedback.textContent = '❌ Falsch! Richtig: ' + correct;
+                feedback.className = 'feedback wrong';
+            }
+
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / shuffledQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('gameOverContainer').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score} / ${shuffledQuestions.length} Punkte`;
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+        document.getElementById('restartBtn').addEventListener('click', initGame);
+
+        // Starte das Spiel
+        initGame();
+    </script>
+</body>
+</html>
