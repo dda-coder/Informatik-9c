@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="de">
+    <meta charset="UTF-8">
+    <head>
+        <title>Memorie</title>
+    </head>
+    <style>
+    body{
+        margin: 0;
+        padding: 20px;
+        font-family: sans-serif;
+        background-color: black;
+    }
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+
+        justify-content: center;
+        align-content: center;
+
+        margin: 15px auto;
+        max-width: 800px;
+
+    }
+
+    /* Handy / Mobile */
+    @media (max-width: 600px) {
+        .container {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 360px;
+        }
+    }
+
+    /* Tablet */
+    @media (min-width: 601px) and (max-width: 1024px) {
+        .container {
+            grid-template-columns: repeat(3, 1fr);
+            max-width: 540px;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1025px) {
+        .container {
+            grid-template-columns: repeat(6, 1fr);
+            max-width: 800px;
+        }
+    }
+
+    .cards {
+        display: flex;
+        width: 160px;
+        height: 160px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.556);
+
+        font-size: 100px;
+        font-weight: bold;
+
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-image: url("img/golden rückseite.jpg");
+
+        justify-content: center;
+        align-items: center;
+
+        background-color: rgb(255, 255, 255);
+        box-shadow: 5px 4px 10px rgb(136, 168, 255);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor:pointer;
+
+        transition: transform 0.6s ease, box-shadow 0.2s ease;
+        transform-style: preserve-3d;
+
+        cursor: pointer;
+
+    }
+
+    .cards:hover {
+        background-color: rgb(255, 255, 255);
+        transform: translateX(-6px) translateY(-6px);
+        box-shadow: 5px 10px 25px rgb(136, 168, 255);
+    }
+    .cards.flipped {
+        transform: rotateY(180deg) scale(1.02);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+
+    }
+    .cards.Hintergrund {
+        background-image: var(--background-image);
+    }
+    .cards.verschwinden {
+        transform: rotateY(90deg) scale(1.02);
+        transform: rotateY(90deg) scale(1.02)
+    }
+    .cards.flipped, .cards.verschwinden {
+        pointer-events: none;
+    }
+    button{
+        display: block;
+        margin: 0 auto;
+        background-color: rgb(50, 182, 189);
+        color: rgb(255, 0, 0);
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 50px;
+        cursor: pointer;
+    }
+    a{
+        text-decoration: none;
+    }
+    .hidden {
+        display: none;
+    }
+     .PunkteAnzeigeP1 {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 24px;
+        color: rgb(42, 189, 238);
+    }
+     .PunkteAnzeigeP2 {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        color: rgb(245, 29, 29);
+    }
+    p {
+        text-align: center;
+        color: rgb(50, 182, 189);
+        font-size: 30px;
+    }
+
+    
+    </style>
+<body style="background-color: black;">
+    <h1 style="text-align: center; color: rgb(50, 182, 189); font-size: 50px;">Memorie</h1>
+    <p id="player1Turn" class="show">P1 ist an der Reihe</p>
+    <p id="player2Turn" class="hidden">P2 ist an der Reihe</p>
+    <p id="endMessage1" class="hidden">P1 hat gewonnen!</p>
+    <a id="restartLink" class="hidden" href="startseite.html"><button>hier geht es zur Startseite</button></a>
+    <p id="endMessage2" class="hidden">P2 hat gewonnen!</p>
+    <div class="PunkteAnzeigeP1">
+        Punkte von P1: <span id="punkte1" style="color: rgb(42, 189, 238);">0</span>
+    </div>
+    <div class="PunkteAnzeigeP2">
+        Punkte von P2: <span id="punkte2" style="color: rgb(245, 29, 29);">0</span>
+    </div>
+    <div class="container">
+    </div>
+    <a id="restartLinkimmer"  href="startseite.html"><button style="font-size: 30px; cursor: pointer; padding: 10px 20px;">hier geht es zur Startseite</button></a>
+<script>
+    
+    let player1 = true;
+
+    let isBoardLocked = false;
+
+    let flippedCards = [];
+    
+    let pairsFound = 0;
+    let pairsFound1 = 0;
+    let pairsFound2 = 0;
+
+    const container = document.querySelector('.container');
+
+    function showGameOver1() {
+        document.getElementById("endMessage1").classList.remove('hidden');
+        document.getElementById("restartLink").classList.remove('hidden');
+    }
+    function showGameOver2() {
+        document.getElementById("endMessage2").classList.remove('hidden');
+        document.getElementById("restartLink").classList.remove('hidden');
+    }
+    function wechsel() {
+        if(player1 === true) {
+            player1 = false;
+            document.getElementById('player1Turn').classList.add('hidden');
+            document.getElementById('player2Turn').classList.remove('hidden');
+        } else {
+            player1 = true;
+            document.getElementById('player1Turn').classList.remove('hidden');
+            document.getElementById('player2Turn').classList.add('hidden');
+        }
+        
+    }
+    
+
+    const images = [
+        "img/Vogel.webp",
+        "img/ork.jpg",
+        "img/lambo.jpg",
+        "img/f1mercedes.webp",
+        "img/minecraftb.jpg",
+        "img/QEQ.webp",
+        "img/bugatti.webp",
+        "img/amggtr.jpg",
+        "img/porsche.webp",
+];
+    
+    const text = "Vogel";
+
+    function createBoard()
+    {
+        
+        
+        const cardimages = [...images, ...images];
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            const shuffledimages = shuffle(cardimages);
+
+            shuffledimages.forEach(image => {
+                const cards = document.createElement('div');
+                cards.classList.add('cards');
+                cards.dataset.image = image;
+
+                container.appendChild(cards);
+            });
+
+        const cards = document.querySelectorAll('.cards');
+    
+        cards.forEach(card => {
+
+            
+            
+            card.addEventListener('click', () => {
+                
+                if(isBoardLocked===true) return;
+                
+
+                console.log(card.dataset.image);
+
+                setTimeout(() => {
+                card.classList.add("Hintergrund");
+                card.style.setProperty(
+                    "--background-image", 
+                    `url(${card.dataset.image})`
+                );
+                }, 100);
+                
+                card.classList.add("flipped");
+
+                flippedCards.push(card);
+                card.classList.add("anime");
+                
+                
+                console.log(flippedCards);
+
+                if(flippedCards.length === 2)
+                { 
+                    isBoardLocked = true;
+                    if(flippedCards[0].dataset.image === flippedCards[1].dataset.image) {  
+                        if(pairsFound1+pairsFound2 < images.length-1) {
+                            if(player1 === true) {
+                                console.log("P1 ein Paar gefunden!");
+                                setTimeout(() => {
+                                    flippedCards[0].classList.add("verschwinden");
+                                    flippedCards[1].classList.add("verschwinden");
+                                    flippedCards = [];
+                                    isBoardLocked = false;
+                                    
+                                    pairsFound1++;
+                                    document.getElementById('punkte1').textContent = pairsFound1;
+                                    console.log(`Punkte1: ${pairsFound1}`);
+                                }, 2000);
+                            } else {
+                                console.log("P2 ein Paar gefunden!");
+                                setTimeout(() => {
+                                    flippedCards[0].classList.add("verschwinden");
+                                    flippedCards[1].classList.add("verschwinden");
+                                    flippedCards = [];
+                                    isBoardLocked = false;
+                                    
+                                    pairsFound2++;
+                                    document.getElementById('punkte2').textContent = pairsFound2;
+                                    console.log(`Punkte2: ${pairsFound2}`);
+                                }, 2000);
+                            }
+                        } else {
+                            
+                            if(player1 === true) {
+                                console.log("P1 ein Paar gefunden!");
+                                setTimeout(() => {
+                                    flippedCards[0].classList.add("verschwinden");
+                                    flippedCards[1].classList.add("verschwinden");
+                                    flippedCards = [];
+                                    isBoardLocked = false;
+                                    
+                                    pairsFound1++;
+                                    document.getElementById('punkte1').textContent = pairsFound1;
+                                    console.log(`Punkte1: ${pairsFound1}`);
+                                }, 2000);
+                            } else {
+                                console.log("P2 ein Paar gefunden!");
+                                setTimeout(() => {
+                                    flippedCards[0].classList.add("verschwinden");
+                                    flippedCards[1].classList.add("verschwinden");
+                                    flippedCards = [];
+                                    isBoardLocked = false;
+                                    
+                                    pairsFound2++;
+                                    document.getElementById('punkte2').textContent = pairsFound2;
+                                    console.log(`Punkte2: ${pairsFound2}`);
+                                }, 2000);
+                            }
+                            setTimeout(() => {
+                                document.getElementById('player1Turn').classList.add('hidden');
+                                document.getElementById('player2Turn').classList.add('hidden');
+                                if (pairsFound2 > pairsFound1) {
+                                    showGameOver2();
+                                } else{
+                                    showGameOver1();
+                                }
+                                console.log("Glückwunsch, Ihr habt alle Paare gefunden!");
+                                pairsFound = 0;
+                                }, 4000);
+                            }
+                        
+                    } else {
+                        console.log("leider kein Paar:(");
+                        setTimeout(() => {
+                                    flippedCards[0].classList.remove("flipped");
+                                    flippedCards[1].classList.remove("flipped");
+                                    flippedCards[0].classList.remove("Hintergrund");
+                                    flippedCards[1].classList.remove("Hintergrund");            
+                                    
+                                    
+                                    flippedCards = [];
+                                    isBoardLocked = false;
+                                    wechsel(); 
+                                    console.log(`Player1: ${pairsFound1} Paare, Player2: ${pairsFound2} Paare`);
+                                    console.log(player1);
+                
+                                }, 2000);
+                    }
+                    
+
+                }
+            });
+
+        
+            
+            
+        });
+        
+
+        
+    }
+
+    
+    createBoard();
+
+
+</script>
+
+<!-- 
+
+mehr bilder
+-->
+
+</body>
+</html>
+

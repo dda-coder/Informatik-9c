@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="de">
+    <meta charset="UTF-8">
+    <style>
+    body{
+        margin: 0;
+        padding: 20px;
+        font-family: sans-serif;
+        background-color: black;
+    }
+    .container {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(140px, 1fr));
+        gap: 20px;
+        justify-content: center;
+        align-content: center;
+        width: min(960px, 100%);
+        margin: 15px auto;
+        padding: 10px 0;
+    }
+
+    .cards {
+        display: flex;
+        width: 160px;
+        height: 160px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.556);
+
+        font-size: 100px;
+        font-weight: bold;
+
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-image: url("img/golden rückseite.jpg");
+
+        justify-content: center;
+        align-items: center;
+
+        background-color: rgb(255, 255, 255);
+        box-shadow: 5px 4px 10px rgb(136, 168, 255);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor:pointer;
+
+        transition: transform 0.6s ease, box-shadow 0.2s ease;
+        transform-style: preserve-3d;
+
+        cursor: pointer;
+
+    }
+
+    .cards:hover {
+        background-color: rgb(255, 255, 255);
+        transform: translateX(-6px) translateY(-6px);
+        box-shadow: 5px 10px 25px rgb(136, 168, 255);
+    }
+    .cards.flipped {
+        background-image: var(--background-image);
+        transform: rotateY(180deg) scale(1.02);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+    .cards.verschwinden {
+        transform: rotateY(90deg) scale(1.02);
+        transform: rotateY(90deg) scale(1.02)
+    }
+    .cards.flipped, .cards.verschwinden {
+        pointer-events: none;
+    }
+    button{
+        display: block;
+        margin: 0 auto;
+        background-color: rgb(50, 182, 189);
+        color: rgb(255, 0, 0);
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 50px;
+        cursor: pointer;
+    }
+    a{
+        text-decoration: none;
+    }
+    
+    </style>
+<body style="background-color: black;">
+    <h1 style="text-align: center; color: rgb(50, 182, 189); font-size: 50px;">Memorie</h1>
+    <p id="level-info" style="text-align:center; color: rgb(150, 220, 255); margin-bottom: 12px; font-size: 18px;"></p>
+    <div class="container">
+    </div>
+    <a href="startseite.html" type="hidden"; value=""><button>hier geht es zur Startseite</button></a>
+<script>
+    
+    let isBoardLocked = false;
+
+    let flippedCards = [];
+    
+    let pairsFound = 0;
+
+    const container = document.querySelector('.container');
+
+    const images = [
+        "img/Vogel.webp",
+        "img/ork.jpg",
+        "img/lambo.jpg",
+        "img/f1mercedes.webp",
+        "img/minecraftb.jpg",
+        "img/QEQ.webp",
+        "img/bugatti.webp",
+        "img/amggtr.jpg"
+];
+
+    const levelMap = {
+        einfach: 4,
+        mittel: 6,
+        schwer: 8
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const selectedLevel = params.get('level') || 'mittel';
+    const pairCount = levelMap[selectedLevel] || levelMap.mittel;
+    const boardImages = images.slice(0, pairCount);
+
+    document.getElementById('level-info').textContent = `Schwierigkeit: ${selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1)} (${pairCount * 2} Karten)`;
+
+    function createBoard()
+    {
+        
+        
+        const cardimages = [...boardImages, ...boardImages];
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            const shuffledimages = shuffle(cardimages);
+
+            shuffledimages.forEach(image => {
+                const cards = document.createElement('div');
+                cards.classList.add('cards');
+                cards.dataset.image = image;
+
+                container.appendChild(cards);
+            });
+
+        const cards = document.querySelectorAll('.cards');
+    
+        cards.forEach(card => {
+
+            
+            
+            card.addEventListener('click', () => {
+                
+                if(isBoardLocked===true) return;
+                
+
+                console.log(card.dataset.image);
+
+                setTimeout(() => {
+                card.style.setProperty(
+                    "--background-image", 
+                    `url(${card.dataset.image})`
+                );
+                }, 200);
+                
+                card.classList.add("flipped");
+
+                flippedCards.push(card);
+                card.classList.add("anime");
+                
+                
+                console.log(flippedCards);
+
+                if(flippedCards.length === 2)
+                { 
+                    isBoardLocked = true;
+                    if(flippedCards[0].dataset.image === flippedCards[1].dataset.image) {
+                        console.log("ein Paar gefunden!");
+                        setTimeout(() => {
+                            flippedCards[0].classList.add("verschwinden");
+                            flippedCards[1].classList.add("verschwinden");
+                            flippedCards = [];
+                            isBoardLocked = false;
+                            pairsFound++;
+                        }, 2000);
+                        return;
+                    } else {
+                        console.log("leider kein Paar:(");
+                    }
+                    isBoardLocked = true;    
+                    setTimeout(() => 
+                    {
+                        
+                        flippedCards[0].classList.remove("flipped");
+                        flippedCards[1].classList.remove("flipped");
+                        flippedCards = [];
+                        isBoardLocked = false;
+                    }, 2500);
+                }
+                if (pairsFound === boardImages.length) {
+                    setTimeout(() => {
+                        alert("Glückwunsch, du hast alle Paare gefunden!");
+                    }, 1000);
+                }
+            });
+            
+            
+        });
+        
+    }
+
+    
+    createBoard();
+</script>
+</body>
+</html>

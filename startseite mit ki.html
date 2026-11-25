@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Memorie | Startseite</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #070912;
+            --text: #e8f8ff;
+            --accent: #3ae0ff;
+            --muted: #8aa9c6;
+            --panel: rgba(9, 14, 24, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top, rgba(58, 224, 255, 0.12), transparent 26%),
+                        #070912;
+            color: var(--text);
+            display: grid;
+            place-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: min(720px, 100%);
+            padding: 32px;
+            border-radius: 22px;
+            background: var(--panel);
+            border: 1px solid rgba(58, 224, 255, 0.16);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            letter-spacing: 0.02em;
+            margin-bottom: 18px;
+            color: var(--text);
+            text-shadow: 0 0 18px rgba(58, 224, 255, 0.35);
+        }
+
+        p {
+            margin: 0 auto 28px;
+            max-width: 640px;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        button {
+            border: none;
+            border-radius: 999px;
+            padding: 16px 38px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #3ae0ff 0%, #0a8af0 100%);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 0 30px rgba(58, 224, 255, 0.24);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 40px rgba(58, 224, 255, 0.35);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .button-grid a {
+            display: block;
+        }
+
+        .button-grid button {
+            width: 100%;
+        }
+
+        .button-easy {
+            background: linear-gradient(135deg, #3ae0ff 0%, #0a8af0 100%);
+        }
+
+        .button-medium {
+            background: linear-gradient(135deg, #8c6dff 0%, #4f5bff 100%);
+        }
+
+        .button-hard {
+            background: linear-gradient(135deg, #ff4d80 0%, #d92cff 100%);
+        }
+
+        .footer {
+            margin-top: 20px;
+            color: rgba(232, 248, 255, 0.6);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 2.8rem;
+            }
+
+            button {
+                width: 100%;
+                padding: 14px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="container">
+        <h1>Willkommen bei Memorie</h1>
+        <p>Ein dunkles, modernes Design mit klaren Neon-Akzenten. Wähle eine Schwierigkeit und starte das Spiel.</p>
+        <div class="button-grid">
+            <a href="memorie.html?level=einfach"><button class="button-easy">Einfach</button></a>
+            <a href="memorie.html?level=mittel"><button class="button-medium">Mittel</button></a>
+            <a href="memorie.html?level=schwer"><button class="button-hard">Schwer</button></a>
+        </div>
+    </section>
+</body>
+</html>

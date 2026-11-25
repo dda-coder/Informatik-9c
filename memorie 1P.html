@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="de">
+    <meta charset="UTF-8">
+    <head>
+        <title>Memorie</title>
+    </head>
+    <style>
+    body{
+        margin: 0;
+        padding: 20px;
+        font-family: sans-serif;
+        background-color: black;
+    }
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+
+        justify-content: center;
+        align-content: center;
+
+        margin: 15px auto;
+        max-width: 800px;
+
+    }
+
+    /* Handy / Mobile */
+    @media (max-width: 600px) {
+        .container {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 360px;
+        }
+    }
+
+    /* Tablet */
+    @media (min-width: 601px) and (max-width: 1024px) {
+        .container {
+            grid-template-columns: repeat(3, 1fr);
+            max-width: 540px;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1025px) {
+        .container {
+            grid-template-columns: repeat(6, 1fr);
+            max-width: 800px;
+        }
+    }
+
+    .cards {
+        display: flex;
+        width: 160px;
+        height: 160px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.556);
+
+        font-size: 100px;
+        font-weight: bold;
+
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-image: url("img/golden rückseite.jpg");
+
+        justify-content: center;
+        align-items: center;
+
+        background-color: rgb(255, 255, 255);
+        box-shadow: 5px 4px 10px rgb(136, 168, 255);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor:pointer;
+
+        transition: transform 0.6s ease, box-shadow 0.2s ease;
+        transform-style: preserve-3d;
+
+        cursor: pointer;
+
+    }
+
+    .cards:hover {
+        background-color: rgb(255, 255, 255);
+        transform: translateX(-6px) translateY(-6px);
+        box-shadow: 5px 10px 25px rgb(136, 168, 255);
+    }
+    .cards.flipped {
+        background-image: var(--background-image);
+        transform: rotateY(180deg) scale(1.02);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+    .cards.verschwinden {
+        transform: rotateY(90deg) scale(1.02);
+        transform: rotateY(90deg) scale(1.02)
+    }
+    .cards.flipped, .cards.verschwinden {
+        pointer-events: none;
+    }
+    button{
+        display: block;
+        margin: 0 auto;
+        background-color: rgb(50, 182, 189);
+        color: rgb(255, 0, 0);
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 50px;
+        cursor: pointer;
+    }
+    a{
+        text-decoration: none;
+    }
+    .hidden {
+        display: none;
+    }
+     .PunkteAnzeigeP1 {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 24px;
+        color: rgb(42, 189, 238);
+    }
+     .PunkteAnzeigeP2 {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        color: rgb(245, 29, 29);
+    }
+    p {
+        text-align: center;
+        color: rgb(50, 182, 189);
+        font-size: 30px;
+    }
+
+    
+    </style>
+<body style="background-color: black;">
+    <h1 style="text-align: center; color: rgb(50, 182, 189); font-size: 50px;">Memorie</h1>
+
+    <div style="text-align:center; margin-bottom:10px;">
+        <button id="startButton">Spiel starten</button>
+    </div>
+
+    <div class="PunkteAnzeigeP1">Punkte: <span id="punkte">0</span></div>
+    <div id="timer" style="position:absolute; top:10px; left:50%; transform:translateX(-50%); color: #2adeee; font-size:20px;">00:00.00</div>
+
+    <p id="endMessage" class="hidden">Du hast <span id="endTime"></span> gebraucht!</p>
+    <p id="bestMessage" class="hidden" style="color: #2adeee; text-align:center; font-size:20px;"></p>
+    
+    <a id="restartLink" class="hidden" href="startseite.html"><button>hier geht es zur Startseite</button></a>
+    <div class="container hidden">
+    </div>
+<script>
+
+    let isBoardLocked = false;
+    let flippedCards = [];
+    
+    let pairsFound = 0;
+    let gameStarted = false;
+    let timerInterval = null;
+    let startTime = null;
+    
+
+
+    const container = document.querySelector('.container');
+    
+
+    const images = [
+        "img/Vogel.webp",
+        "img/ork.jpg",
+        "img/lambo.jpg",
+        "img/f1mercedes.webp",
+        "img/minecraftb.jpg",
+        "img/QEQ.webp",
+        "img/bugatti.webp",
+        "img/amggtr.jpg",
+        "img/porsche.webp",
+];
+    const totalPairs = images.length;
+    
+    const text = "Vogel";
+
+    function createBoard()
+    {
+        
+        
+        const cardimages = [...images, ...images];
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            const shuffledimages = shuffle(cardimages);
+
+            shuffledimages.forEach(image => {
+                const cards = document.createElement('div');
+                cards.classList.add('cards');
+                cards.dataset.image = image;
+
+                container.appendChild(cards);
+            });
+
+        const cards = document.querySelectorAll('.cards');
+    
+        cards.forEach(card => {
+
+            
+            
+            card.addEventListener('click', () => {
+                if (!gameStarted) return;
+                if (isBoardLocked === true) return;
+
+                console.log(card.dataset.image);
+
+                setTimeout(() => {
+                    card.style.setProperty(
+                        "--background-image", 
+                        `url(${card.dataset.image})`
+                    );
+                }, 200);
+
+                card.classList.add("flipped");
+
+                flippedCards.push(card);
+                card.classList.add("anime");
+
+                console.log(flippedCards);
+
+                if (flippedCards.length === 2) {
+                    isBoardLocked = true;
+                    if (flippedCards[0].dataset.image === flippedCards[1].dataset.image) {
+                        console.log("du hast ein Paar gefunden!");
+                        setTimeout(() => {
+                            flippedCards[0].classList.add("verschwinden");
+                            flippedCards[1].classList.add("verschwinden");
+                            flippedCards = [];
+                            isBoardLocked = false;
+
+                            pairsFound++;
+                            document.getElementById('punkte').textContent = pairsFound;
+                            console.log(`Punkte: ${pairsFound}`);
+
+                            if (pairsFound === totalPairs) {
+                                stopTimer();
+                                document.getElementById('startButton').classList.add('hidden');
+                                document.getElementById('endMessage').classList.remove('hidden');
+                                document.getElementById('restartLink').classList.remove('hidden');
+                                gameStarted = false;
+                            }
+                        }, 800);
+                    } else {
+                        console.log("leider kein Paar:(");
+                        setTimeout(() => {
+                            flippedCards[0].classList.remove("flipped");
+                            flippedCards[1].classList.remove("flipped");
+                            flippedCards = [];
+                            isBoardLocked = false;
+                        }, 1000);
+                    }
+                }
+            });
+        });
+        
+
+        
+    }
+
+    
+    createBoard();
+
+    // Timer functions
+    function formatTime(ms) {
+        const totalMilliseconds = ms;
+        const minutes = Math.floor(totalMilliseconds / 60000).toString().padStart(2, '0');
+        const seconds = Math.floor((totalMilliseconds % 60000) / 1000).toString().padStart(2, '0');
+        const hundredths = Math.floor((totalMilliseconds % 1000) / 10).toString().padStart(2, '0');
+        return `${minutes}:${seconds}.${hundredths}`;
+    }
+
+    function startTimer() {
+        if (timerInterval) return;
+        startTime = Date.now();
+        document.getElementById('timer').textContent = '00:00.00';
+        timerInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            document.getElementById('timer').textContent = formatTime(elapsed);
+        }, 10);
+    }
+
+    function stopTimer() {
+        if (!timerInterval) return;
+        clearInterval(timerInterval);
+        timerInterval = null;
+        const elapsed = Date.now() - startTime;
+        console.log(`timer gestoppt bei: ${formatTime(elapsed)}`);
+        document.getElementById('endTime').textContent = formatTime(elapsed);
+        // Bestzeit prüfen und speichern (kleinste Zeit wins)
+        const BEST_KEY = 'memorie_1p_best_ms';
+        const prev = parseInt(localStorage.getItem(BEST_KEY), 10) || null;
+        let isRecord = false;
+        if (!prev || elapsed < prev) {
+            localStorage.setItem(BEST_KEY, String(elapsed));
+            isRecord = true;
+        }
+        const bestMs = parseInt(localStorage.getItem(BEST_KEY), 10);
+        const bestText = bestMs ? formatTime(bestMs) : '—';
+        const bestMessageEl = document.getElementById('bestMessage');
+        bestMessageEl.textContent = `Beste Zeit: ${bestText}` + (isRecord ? ' — Neuer Rekord!' : '');
+        bestMessageEl.classList.remove('hidden');
+    }
+    function startGame() {
+        // reveal board and enable clicks
+        document.querySelector('.container').classList.remove('hidden');
+        gameStarted = true;
+        startTimer();
+        document.getElementById('startButton').disabled = true;
+        document.getElementById('startButton').classList.add('hidden');
+    }
+
+    document.getElementById('startButton').addEventListener('click', startGame);
+
+
+</script>
+
+<!-- 
+punkte system (vraiable true/false)
+mehr bilder
+-->
+
+</body>
+</html>
+
